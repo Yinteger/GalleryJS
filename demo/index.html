@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>EasyGalleryDemo</title>
+</head>
+<body>
+    <div id="gallery-container"></div>
+    <script src="../dist/easy-gallery.js"></script>
+    <script>
+        window.onload = function () {
+            EasyGallery.gallery(document.getElementById('gallery-container'), ["assets/apps.png", "assets/app.png"]);
+        };
+    </script>
+</body>
+</html>

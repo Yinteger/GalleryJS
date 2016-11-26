@@ -1,0 +1,44 @@
+{
+  "name": "easy-gallery",
+  "version": "1.0.0",
+  "description": "Create Gallery widgets in JavaScript that can easily display Images & Video in a variety of layouts.",
+  "main": "exports.js",
+  "scripts": {
+    "compile": "node_modules/.bin/webpack --watch",
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/YuniYasha/easy-gallery.git"
+  },
+  "author": {
+    "name": "Kyle Williams",
+    "url": "http://www.kylewilliams.io",
+    "email": "kyle@kylewilliams.io"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/YuniYasha/easy-gallery/issues"
+  },
+  "homepage": "https://github.com/YuniYasha/easy-gallery#readme",
+  "devDependencies": {
+    "babel-core": "^6.18.2",
+    "babel-loader": "^6.2.8",
+    "babel-preset-es2015": "^6.18.0",
+    "css-loader": "^0.26.0",
+    "less": "^2.7.1",
+    "less-loader": "^2.2.3",
+    "style-loader": "^0.13.1",
+    "url-loader": "^0.5.7",
+    "webpack": "^1.13.3"
+  },
+  "keywords": [
+    "lightbox",
+    "gallery",
+    "modal",
+    "touchfriendly",
+    "responsive",
+    "popup",
+    "dialog"
+  ]
+}
