@@ -1,3 +1,5 @@
+var webpack = require("webpack");
+
 //Ubuntu on Windows Network Interface Fix...
 try {
     require('os').networkInterfaces();
@@ -12,6 +14,13 @@ module.exports = {
         filename: "easy-gallery.js"
     },
     devtool: "source-map",
+    // plugins: [
+    //     new webpack.optimize.UglifyJsPlugin({
+    //         compress: {
+    //             warnings: false
+    //         }
+    //     })
+    // ],
     module: {
         loaders: [
             {

@@ -129,12 +129,25 @@
 	
 	var Gallery = function () {
 	    function Gallery(content) {
+	        var _this = this;
+	
 	        _classCallCheck(this, Gallery);
 	
 	        this.navigationStatus = null;
+	        this.gallery = null;
 	        this.galleryContentContainer = null;
+	        this.itemTitle = null;
 	        this.content = content;
 	        this.index = 1;
+	        this.isFullscreen = false;
+	        this.onKeyUp = this._onKeyUp.bind(this);
+	        this.images = [];
+	
+	        window.addEventListener('resize', function (e) {
+	            for (var i in _this.images) {
+	                _this._setInitialImageSize(_this.images[i]);
+	            }
+	        });
 	
 	        return this.build(content);
 	    }
@@ -142,9 +155,10 @@
 	    _createClass(Gallery, [{
 	        key: "build",
 	        value: function build(content) {
-	            var _this = this;
+	            var _this2 = this;
 	
 	            var gallery = document.createElement('div');
+	            this.gallery = gallery;
 	            gallery.className = "gallery";
 	
 	            //Container for the Content (Images/Videos)
@@ -156,11 +170,7 @@
 	
 	            //Add Content
 	            for (var i in content) {
-	                var item = content[i];
-	
-	                var galleryItem = document.createElement('div');
-	                galleryItem.style.backgroundImage = "url('" + item + "')";
-	                galleryContentContainer.appendChild(galleryItem);
+	                galleryContentContainer.appendChild(this._buildGalleryItem(content[i]));
 	            }
 	
 	            //Navigation Icons
@@ -173,7 +183,7 @@
 	            var Tap1 = new _hammerjs2.default.Tap();
 	            mc1.add(Tap1);
 	            mc1.on('tap', function (e) {
-	                _this.previous();
+	                _this2.previous();
 	            });
 	
 	            var forwardNavIcon = document.createElement('img');
@@ -185,7 +195,7 @@
 	            var Tap2 = new _hammerjs2.default.Tap();
 	            mc2.add(Tap2);
 	            mc2.on('tap', function (e) {
-	                _this.next();
+	                _this2.next();
 	            });
 	
 	            //Status bar for status of gallery navigation and icons for fullscreen, etc
@@ -195,9 +205,9 @@
 	
 	            //Navigation status
 	            var navigationStatus = document.createElement('div');
+	            navigationStatus.className = "navigation-status";
 	            this.navigationStatus = navigationStatus;
 	            statusBar.appendChild(navigationStatus);
-	            this._updateContentPosition();
 	
 	            //Full screen icon
 	            var fullScreenIcon = document.createElement('img');
@@ -205,13 +215,20 @@
 	            fullScreenIcon.src = _fullscreen2.default;
 	            statusBar.appendChild(fullScreenIcon);
 	
+	            //Item Title
+	            var itemTitle = document.createElement('span');
+	            this.itemTitle = itemTitle;
+	            statusBar.appendChild(itemTitle);
+	
 	            var mc3 = new _hammerjs2.default.Manager(fullScreenIcon);
 	            var Tap3 = new _hammerjs2.default.Tap();
 	            mc3.add(Tap3);
 	            mc3.on("tap", function (e) {
 	                //Toggle FullScreen
-	                gallery.classList.toggle("fullscreen");
+	                _this2.toggleFullscreen();
 	            });
+	
+	            this._onNavigation();
 	
 	            return gallery;
 	        }
@@ -220,7 +237,7 @@
 	        value: function next() {
 	            if (this.index < this.content.length) {
 	                this.index += 1;
-	                this._updateContentPosition();
+	                this._onNavigation();
 	            }
 	        }
 	    }, {
@@ -228,29 +245,268 @@
 	        value: function previous() {
 	            if (this.index > 1) {
 	                this.index -= 1;
-	                this._updateContentPosition();
+	                this._onNavigation();
 	            }
+	        }
+	    }, {
+	        key: "toggleFullscreen",
+	        value: function toggleFullscreen() {
+	            this.gallery.classList.toggle("fullscreen");
+	            this.isFullscreen = !this.isFullscreen;
+	            if (this.isFullscreen) {
+	                document.body.addEventListener('keyup', this.onKeyUp);
+	            } else {
+	                document.body.removeEventListener('keyup', this.onKeyUp);
+	            }
+	
+	            for (var i in this.images) {
+	                this._setInitialImageSize(this.images[i]);
+	            }
+	        }
+	    }, {
+	        key: "_buildGalleryItem",
+	        value: function _buildGalleryItem(item) {
+	            var _this3 = this;
+	
+	            var itemContainer = document.createElement('div');
+	
+	            var pinch;
+	            var pan;
+	            var startW;
+	            var startH;
+	            var startX;
+	            var startY;
+	            var imageStartX;
+	            var imageStartY;
+	            var pinchStartX;
+	            var pinchStartY;
+	            var focusPoint;
+	
+	            (function () {
+	                switch (item.type) {
+	                    case "image":
+	                        var galleryImage = document.createElement('img');
+	                        galleryImage.src = item.url;
+	                        itemContainer.appendChild(galleryImage);
+	                        galleryImage.onload = function (e) {
+	                            _this3._setInitialImageSize(galleryImage);
+	                            console.log("Display aspect ratio", _this3.galleryContentContainer.offsetWidth / _this3.galleryContentContainer.offsetHeight);
+	
+	                            console.log("Imagage aspect ratio", galleryImage.offsetWidth / galleryImage.offsetHeight, item.url);
+	                        };
+	                        _this3.images.push(galleryImage);
+	                        // itemContainer.style.backgroundImage = "url('" + item.url + "')";
+	
+	                        var mc = new _hammerjs2.default.Manager(itemContainer);
+	                        pinch = new _hammerjs2.default.Pinch();
+	                        pan = new _hammerjs2.default.Pan();
+	
+	                        mc.add(pinch);
+	                        mc.add(pan);
+	                        focusPoint = {};
+	
+	                        mc.on("pinchstart", function (e) {
+	                            startW = galleryImage.offsetWidth;
+	                            startH = galleryImage.offsetHeight;
+	                            pinchStartX = galleryImage.offsetLeft;
+	                            pinchStartY = galleryImage.offsetTop;
+	                            startX = e.pointers[0].clientX;
+	                            startY = e.pointers[0].clientY;
+	                            imageStartX = galleryImage.offsetLeft;
+	                            imageStartY = galleryImage.offsetTop;
+	
+	                            var x1 = e.pointers[0].clientX;
+	                            var x2 = e.pointers[1].clientX;
+	                            var y1 = e.pointers[0].clientY;
+	                            var y2 = e.pointers[1].clientY;
+	                            focusPoint.x = x1 + (x2 - x1) / 2;
+	                            focusPoint.y = y1 + (y2 - y1) / 2;
+	                        });
+	                        var pinchFn = function pinchFn(e) {
+	                            _this3._resizeImage(galleryImage, startW * e.scale, startH * e.scale, focusPoint, pinchStartX, pinchStartY);
+	                        };
+	                        mc.on("pinchin", pinchFn);
+	                        mc.on("pinchout", pinchFn);
+	                        mc.on("panstart", function (e) {
+	                            startX = e.pointers[0].clientX;
+	                            startY = e.pointers[0].clientY;
+	                            imageStartX = galleryImage.offsetLeft;
+	                            imageStartY = galleryImage.offsetTop;
+	                        });
+	                        mc.on("pinchmove", function (e) {
+	                            _this3._moveImage(galleryImage, imageStartX - (startX - e.pointers[0].clientX), imageStartY - (startY - e.pointers[0].clientY));
+	                        });
+	                        mc.on("panmove", function (e) {
+	                            _this3._moveImage(galleryImage, imageStartX - (startX - e.pointers[0].clientX), imageStartY - (startY - e.pointers[0].clientY));
+	                        });
+	
+	                        break;
+	                    case "youtube":
+	                        var yt = document.createElement('iframe');
+	                        yt.setAttribute('id', "player");
+	                        yt.setAttribute('type', 'text/html');
+	                        yt.setAttribute('frameborder', '0');
+	                        yt.setAttribute('src', "http://www.youtube.com/embed/" + item.video_id + "?enablejsapi=1&origin=http://example.com");
+	                        itemContainer.appendChild(yt);
+	                        break;
+	                }
+	            })();
+	
+	            return itemContainer;
+	        }
+	    }, {
+	        key: "_moveImage",
+	        value: function _moveImage(image, x, y) {
+	            //Constrain movement...
+	            if (image.offsetWidth > this.galleryContentContainer.offsetWidth) {
+	                if (x > 0) {
+	                    x = 0;
+	                } else if (x < this.galleryContentContainer.offsetWidth - image.offsetWidth) {
+	                    x = this.galleryContentContainer.offsetWidth - image.offsetWidth;
+	                }
+	            } else {
+	                //Don't allow it to move
+	                x = image.offsetLeft;
+	            }
+	
+	            if (image.offsetHeight > this.galleryContentContainer.offsetHeight) {
+	                if (y > 0) {
+	                    y = 0;
+	                } else if (y < this.galleryContentContainer.offsetHeight - image.offsetHeight) {
+	                    y = this.galleryContentContainer.offsetHeight - image.offsetHeight;
+	                }
+	            } else {
+	                y = image.offsetTop;
+	            }
+	
+	            //Set finalized coordinates
+	            image.style.left = x + "px";
+	            image.style.top = y + "px";
+	        }
+	    }, {
+	        key: "_resizeImage",
+	        value: function _resizeImage(image, w, h, focusPoint, startX, startY) {
+	            var x = void 0;
+	            var y = void 0;
+	
+	            //Constrain Image size
+	            var displayAR = this.galleryContentContainer.offsetWidth / this.galleryContentContainer.offsetHeight;
+	            var imageAR = image.offsetWidth / image.offsetHeight;
+	
+	            if (displayAR > imageAR && h < this.galleryContentContainer.offsetHeight) {
+	                h = this.galleryContentContainer.offsetHeight;
+	                w = image.offsetWidth;
+	            } else if (displayAR < imageAR && w < this.galleryContentContainer.offsetWidth) {
+	                h = image.offsetHeight;
+	                w = this.galleryContentContainer.offsetWidth;
+	            }
+	
+	            //Make sure it doesn't exceed original dimensions x2
+	            if (h > this.galleryContentContainer.offsetHeight * 2 || w > this.galleryContentContainer.offsetWidth * 2) {
+	                h = image.offsetHeight;
+	                w = image.offsetWidth;
+	            }
+	            // console.log(focusPoint);
+	            var scale = void 0;
+	            if (displayAR > imageAR) {
+	                scale = image.offsetHeight / this.galleryContentContainer.offsetHeight - 1;
+	            } else {
+	                scale = image.offsetWidth / this.galleryContentContainer.offsetWidth - 1;
+	            }
+	            console.log(focusPoint, "Focus Point");
+	            //Recenter image with new dimensions against focus point based on zoom level
+	            var destination = { x: startX - focusPoint.x * 2, y: startY - focusPoint.y * 2 };
+	            console.log(destination, "Destination");
+	            x = (startX + destination.x) * scale;
+	            y = (startY + destination.y) * scale;
+	
+	            //Boundry Enforcement
+	            if (h < this.galleryContentContainer.offsetHeight) {
+	                y = (this.galleryContentContainer.offsetHeight - image.offsetHeight) / 2;
+	            } else if (h > this.galleryContentContainer.offsetHeight && y > 0) {
+	                y = 0;
+	            } else if (h > this.galleryContentContainer.offsetHeight && y < 0 - (h - this.galleryContentContainer.offsetHeight)) {
+	                y = 0 - (h - this.galleryContentContainer.offsetHeight);
+	            }
+	
+	            if (w < this.galleryContentContainer.offsetWidth) {
+	                x = (this.galleryContentContainer.offsetWidth - image.offsetWidth) / 2;
+	            } else if (w > this.galleryContentContainer.offsetWidth && x > 0) {
+	                x = 0;
+	            } else if (w > this.galleryContentContainer.offsetWidth && x < 0 - (w - this.galleryContentContainer.offsetWidth)) {
+	                x = 0 - (w - this.galleryContentContainer.offsetWidth);
+	            }
+	
+	            image.style.display = "none";
+	            image.style.top = y + "px";
+	            image.style.left = x + "px";
+	            image.style.width = w + "px";
+	            image.style.height = h + "px";
+	            image.style.display = "block";
 	        }
 	    }, {
 	        key: "_attachEvents",
 	        value: function _attachEvents(galleryContentContainer) {
-	            var _this2 = this;
-	
 	            var mc = new _hammerjs2.default.Manager(galleryContentContainer.parentNode);
 	            var Swipe = new _hammerjs2.default.Swipe();
 	            mc.add(Swipe);
 	            mc.on('swipeleft', function (e) {
-	                _this2.next();
+	                // this.next();
 	            });
 	            mc.on('swiperight', function (e) {
-	                _this2.previous();
+	                // this.previous();
 	            });
 	        }
 	    }, {
-	        key: "_updateContentPosition",
-	        value: function _updateContentPosition() {
+	        key: "_setInitialImageSize",
+	        value: function _setInitialImageSize(galleryImage) {
+	            //Remove all dimensions styling to insure a fresh slate
+	            galleryImage.style.removeProperty("height");
+	            galleryImage.style.removeProperty("width");
+	
+	            //Compare Aspect Ratios and set the size of the image
+	            var displayAR = this.galleryContentContainer.offsetWidth / this.galleryContentContainer.offsetHeight;
+	            var imageAR = galleryImage.offsetWidth / galleryImage.offsetHeight;
+	
+	            if (displayAR > imageAR) {
+	                galleryImage.style.top = "0px";
+	                galleryImage.style.height = this.galleryContentContainer.offsetHeight + "px";
+	                galleryImage.style.left = (this.galleryContentContainer.offsetWidth - galleryImage.offsetWidth) / 2 + "px";
+	            } else if (displayAR < imageAR) {
+	                galleryImage.style.left = "0px";
+	                galleryImage.style.width = this.galleryContentContainer.offsetWidth + "px";
+	                galleryImage.style.top = (this.galleryContentContainer.offsetHeight - galleryImage.offsetHeight) / 2 + "px";
+	            } else {
+	                galleryImage.style.top = "0px";
+	                galleryImage.style.left = "0px";
+	                galleryImage.style.height = this.galleryContentContainer.offsetHeight + "px";
+	                galleryImage.style.width = this.galleryContentContainer.offsetWidth + "px";
+	            }
+	        }
+	    }, {
+	        key: "_onNavigation",
+	        value: function _onNavigation() {
 	            this.navigationStatus.innerHTML = this.index + "/" + this.content.length;
 	            this.galleryContentContainer.style.left = (this.index - 1) * 100 * -1 + "%";
+	            this.itemTitle.innerHTML = this.content[this.index - 1].title || "";
+	        }
+	    }, {
+	        key: "_onKeyUp",
+	        value: function _onKeyUp(e) {
+	            switch (e.which) {
+	                case 37:
+	                    //Left
+	                    this.previous();
+	                    break;
+	                case 39:
+	                    //Right
+	                    this.next();
+	                    break;
+	                case 27:
+	                    //Esp
+	                    this.toggleFullscreen();
+	                    break;
+	            }
 	        }
 	    }]);
 	
@@ -2932,7 +3188,7 @@
 	
 	
 	// module
-	exports.push([module.id, ".gallery {\n  height: 250px;\n  background-color: black;\n  position: relative;\n  overflow: hidden;\n}\n.gallery.fullscreen {\n  position: fixed;\n  z-index: 100;\n  top: 0px;\n  left: 0px;\n  right: 0px;\n  bottom: 0px;\n  height: auto;\n}\n.gallery .forward-nav-icon,\n.gallery .back-nav-icon {\n  position: absolute;\n  top: 0px;\n  bottom: 22px;\n  margin: auto;\n  width: 30px;\n  height: 30px;\n  opacity: .5;\n  z-index: 3;\n}\n.gallery .forward-nav-icon:hover,\n.gallery .back-nav-icon:hover {\n  opacity: .75;\n}\n.gallery .forward-nav-icon {\n  right: 15px;\n}\n.gallery .back-nav-icon {\n  left: 15px;\n}\n.gallery .status-bar {\n  position: absolute;\n  bottom: 0px;\n  left: 0px;\n  right: 0px;\n  height: 22px;\n  /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#45484d+0,000000+100;Black+3D+%231 */\n  background: #45484d;\n  /* Old browsers */\n  background: -moz-linear-gradient(top, #45484d 0%, #000000 100%);\n  /* FF3.6-15 */\n  background: -webkit-linear-gradient(top, #45484d 0%, #000000 100%);\n  /* Chrome10-25,Safari5.1-6 */\n  background: linear-gradient(to bottom, #45484d 0%, #000000 100%);\n  /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */\n  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#45484d', endColorstr='#000000', GradientType=0);\n  /* IE6-9 */\n  -webkit-box-shadow: 0px 0px 14px 0px rgba(0, 0, 0, 0.75);\n  -moz-box-shadow: 0px 0px 14px 0px rgba(0, 0, 0, 0.75);\n  box-shadow: 0px 0px 14px 0px rgba(0, 0, 0, 0.75);\n  z-index: 2;\n  color: white;\n  padding: 5px;\n  font-size: 14px;\n  box-sizing: border-box;\n}\n.gallery .status-bar .fullscreen-icon {\n  position: absolute;\n  right: 5px;\n  top: 5px;\n  height: 12px;\n}\n.gallery .gallery-content {\n  position: absolute;\n  top: 0px;\n  left: 0px;\n  bottom: 22px;\n  width: 100%;\n  overflow: hidden;\n  transition: left .5s;\n  white-space: nowrap;\n  z-index: 1;\n  overflow: visible;\n}\n.gallery .gallery-content > * {\n  width: 100%;\n  height: 100%;\n  display: inline-block;\n  background-size: contain;\n  background-repeat: no-repeat;\n  background-position: center center;\n}\n", ""]);
+	exports.push([module.id, ".gallery {\n  height: 250px;\n  background-color: black;\n  position: relative;\n  overflow: hidden;\n}\n.gallery.fullscreen {\n  position: fixed;\n  z-index: 100;\n  top: 0px;\n  left: 0px;\n  right: 0px;\n  bottom: 0px;\n  height: auto;\n}\n.gallery .forward-nav-icon,\n.gallery .back-nav-icon {\n  position: absolute;\n  top: 0px;\n  bottom: 22px;\n  margin: auto;\n  width: 30px;\n  height: 30px;\n  opacity: .5;\n  z-index: 3;\n}\n.gallery .forward-nav-icon:hover,\n.gallery .back-nav-icon:hover {\n  opacity: .75;\n}\n.gallery .forward-nav-icon {\n  right: 15px;\n}\n.gallery .back-nav-icon {\n  left: 15px;\n}\n.gallery .status-bar {\n  position: absolute;\n  bottom: 0px;\n  left: 0px;\n  right: 0px;\n  height: 22px;\n  text-align: center;\n  /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#45484d+0,000000+100;Black+3D+%231 */\n  background: #45484d;\n  /* Old browsers */\n  background: -moz-linear-gradient(top, #45484d 0%, #000000 100%);\n  /* FF3.6-15 */\n  background: -webkit-linear-gradient(top, #45484d 0%, #000000 100%);\n  /* Chrome10-25,Safari5.1-6 */\n  background: linear-gradient(to bottom, #45484d 0%, #000000 100%);\n  /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */\n  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#45484d', endColorstr='#000000', GradientType=0);\n  /* IE6-9 */\n  -webkit-box-shadow: 0px 0px 14px 0px rgba(0, 0, 0, 0.75);\n  -moz-box-shadow: 0px 0px 14px 0px rgba(0, 0, 0, 0.75);\n  box-shadow: 0px 0px 14px 0px rgba(0, 0, 0, 0.75);\n  z-index: 2;\n  color: white;\n  padding: 5px;\n  font-size: 12px;\n  box-sizing: border-box;\n}\n.gallery .status-bar .fullscreen-icon {\n  position: absolute;\n  right: 5px;\n  top: 5px;\n  height: 12px;\n}\n.gallery .status-bar .navigation-status {\n  position: absolute;\n  left: 5px;\n  top: 5px;\n}\n.gallery .gallery-content {\n  position: absolute;\n  top: 0px;\n  left: 0px;\n  bottom: 22px;\n  width: 100%;\n  overflow: hidden;\n  transition: left .5s;\n  white-space: nowrap;\n  z-index: 1;\n  overflow: visible;\n}\n.gallery .gallery-content > * {\n  width: 100%;\n  height: 100%;\n  display: inline-block;\n  background-size: contain;\n  background-repeat: no-repeat;\n  background-position: center center;\n  vertical-align: top;\n  position: relative;\n  overflow: hidden;\n}\n.gallery .gallery-content > * iframe {\n  width: 100%;\n  height: 100%;\n}\n.gallery .gallery-content > * img {\n  position: absolute;\n  top: 0px;\n  left: 0px;\n}\n", ""]);
 	
 	// exports
 
