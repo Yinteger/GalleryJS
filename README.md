@@ -8,15 +8,15 @@ To use GalleryJS, download the js file <a target="_blank" href="https://raw.gith
 ```
 This will load the widget into your global namespace, and you can instantiate as many instances as you want like so:
 ```javascript
-            var items = [
-                {"type": "image", "url": "assets/1080p.jpg", "title": "This is a test title"},
-                {"type": "image", "url": "assets/phone.jpg"},
-                {"type": "youtube", "video_id": "_8puyxscRBs", "player_vars":{"controls": 0}},
-                {"type": "image", "url": "assets/banner.png"},
-                {"type": "image", "url": "assets/icon.png"}
-            ];
+var items = [
+    {"type": "image", "url": "assets/1080p.jpg", "title": "This is a test title"},
+    {"type": "image", "url": "assets/phone.jpg"},
+    {"type": "youtube", "video_id": "_8puyxscRBs", "player_vars":{"controls": 0}},
+    {"type": "image", "url": "assets/banner.png"},
+    {"type": "image", "url": "assets/icon.png"}
+];
 
-            document.getElementById('gallery-container').appendChild(new GalleryJS(items).element);
+document.getElementById('gallery-container').appendChild(new GalleryJS(items).element);
 ```
 
 Alternatively, you can import GalleryJS into your Node Project by installing it through NPM like so:
