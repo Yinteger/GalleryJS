@@ -16,11 +16,10 @@ export default class Gallery {
         this.isFullscreen = false;
         this.onKeyUp = this._onKeyUp.bind(this);
         this.images = [];
+        this.resizeTimeout;
 
         window.addEventListener('resize', (e) => {
-            for (var i in this.images) {
-                this._setInitialImageSize(this.images[i]);
-            }
+            this._setAllInitialImageSize();
         })
 
         return this.build(content);
@@ -127,9 +126,7 @@ export default class Gallery {
             document.body.removeEventListener('keyup', this.onKeyUp);
         }
 
-        for (var i in this.images) {
-            this._setInitialImageSize(this.images[i]);
-        }
+        this._setAllInitialImageSize();
     }
 
     _buildGalleryItem (item) {
@@ -163,6 +160,7 @@ export default class Gallery {
                 var pinchStartX;
                 var pinchStartY;
                 var focusPoint = {};
+                var pinchOffset = {};
                 mc.on("pinchstart", (e) => {
                     startW = galleryImage.offsetWidth;
                     startH = galleryImage.offsetHeight;
@@ -181,7 +179,7 @@ export default class Gallery {
                     focusPoint.y = y1 + ((y2 - y1) / 2);
                 });
                 let pinchFn = (e) => {
-                    this._resizeImage(galleryImage, (startW * e.scale), (startH * e.scale), focusPoint, pinchStartX, pinchStartY);
+                    this._resizeImage(galleryImage, (startW * e.scale), (startH * e.scale), focusPoint, pinchStartX, pinchStartY, pinchOffset);
                 };
                 mc.on("pinchin", pinchFn);
                 mc.on("pinchout",pinchFn);
@@ -192,7 +190,8 @@ export default class Gallery {
                     imageStartY = galleryImage.offsetTop;
                 });
                 mc.on("pinchmove", (e) => {
-                    this._moveImage(galleryImage, imageStartX - (startX - e.pointers[0].clientX) , imageStartY - (startY - e.pointers[0].clientY));
+                    pinchOffset = {x: e.pointers[0].clientX - startX,y:  e.pointers[0].clientY - startY};
+                    // this._moveImage(galleryImage, imageStartX - (startX - e.pointers[0].clientX) , imageStartY - (startY - e.pointers[0].clientY));
                 });
                 mc.on("panmove", (e) => {
                     this._moveImage(galleryImage, imageStartX - (startX - e.pointers[0].clientX) , imageStartY - (startY - e.pointers[0].clientY));
@@ -240,7 +239,7 @@ export default class Gallery {
         image.style.top = y + "px";
     }
 
-    _resizeImage (image, w, h, focusPoint, startX, startY) {
+    _resizeImage (image, w, h, focusPoint, startX, startY, offset) {
         let x;
         let y;
 
@@ -268,17 +267,20 @@ export default class Gallery {
         } else {
             scale = (image.offsetWidth / this.galleryContentContainer.offsetWidth) - 1;
         }
-        console.log(focusPoint, "Focus Point");
+
+        //TODO: Redo focus point calculations to be more accurate
         //Recenter image with new dimensions against focus point based on zoom level
         let destination = {x: startX - ( focusPoint.x * 2), y: startY - (focusPoint.y * 2)};
-        console.log(destination, "Destination");
+
         x = (startX + (destination.x)) * scale;
         y = (startY + (destination.y)) * scale;
+        x += offset.x;
+        y += offset.y;
 
 
         //Boundry Enforcement
         if (h < this.galleryContentContainer.offsetHeight) {
-            y = (this.galleryContentContainer.offsetHeight - image.offsetHeight) / 2;
+            y = (this.galleryContentContainer.offsetHeight - h) / 2;
         }  else if (h > this.galleryContentContainer.offsetHeight && y > 0) {
             y = 0;
         } else if (h > this.galleryContentContainer.offsetHeight && y < 0-((h - this.galleryContentContainer.offsetHeight))) {
@@ -286,7 +288,7 @@ export default class Gallery {
         }
 
         if (w < this.galleryContentContainer.offsetWidth) {
-            x = (this.galleryContentContainer.offsetWidth - image.offsetWidth) / 2;
+            x = (this.galleryContentContainer.offsetWidth - w) / 2;
         } else if (w > this.galleryContentContainer.offsetWidth && x > 0) {
             x = 0;
         } else if (w > this.galleryContentContainer.offsetWidth && x < 0-((w - this.galleryContentContainer.offsetWidth))) {
@@ -294,10 +296,10 @@ export default class Gallery {
         }
 
         image.style.display = "none";
-        image.style.top = y + "px";
-        image.style.left = x + "px";
-        image.style.width = w + "px";
-        image.style.height = h + "px";
+        image.style.top = Math.floor(y) + "px";
+        image.style.left = Math.floor(x) + "px";
+        image.style.width = Math.floor(w) + "px";
+        image.style.height = Math.floor(h) + "px";
         image.style.display = "block";
     }
 
@@ -311,6 +313,12 @@ export default class Gallery {
         mc.on('swiperight', (e) => {
             // this.previous();
         });
+    }
+
+    _setAllInitialImageSize() {
+        for (var i in this.images) {
+            this._setInitialImageSize(this.images[i]);
+        }
     }
 
     _setInitialImageSize (galleryImage) {

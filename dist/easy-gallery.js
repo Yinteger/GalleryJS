@@ -142,11 +142,10 @@
 	        this.isFullscreen = false;
 	        this.onKeyUp = this._onKeyUp.bind(this);
 	        this.images = [];
+	        this.resizeTimeout;
 	
 	        window.addEventListener('resize', function (e) {
-	            for (var i in _this.images) {
-	                _this._setInitialImageSize(_this.images[i]);
-	            }
+	            _this._setAllInitialImageSize();
 	        });
 	
 	        return this.build(content);
@@ -259,9 +258,7 @@
 	                document.body.removeEventListener('keyup', this.onKeyUp);
 	            }
 	
-	            for (var i in this.images) {
-	                this._setInitialImageSize(this.images[i]);
-	            }
+	            this._setAllInitialImageSize();
 	        }
 	    }, {
 	        key: "_buildGalleryItem",
@@ -281,6 +278,7 @@
 	            var pinchStartX;
 	            var pinchStartY;
 	            var focusPoint;
+	            var pinchOffset;
 	
 	            (function () {
 	                switch (item.type) {
@@ -304,6 +302,7 @@
 	                        mc.add(pinch);
 	                        mc.add(pan);
 	                        focusPoint = {};
+	                        pinchOffset = {};
 	
 	                        mc.on("pinchstart", function (e) {
 	                            startW = galleryImage.offsetWidth;
@@ -323,7 +322,7 @@
 	                            focusPoint.y = y1 + (y2 - y1) / 2;
 	                        });
 	                        var pinchFn = function pinchFn(e) {
-	                            _this3._resizeImage(galleryImage, startW * e.scale, startH * e.scale, focusPoint, pinchStartX, pinchStartY);
+	                            _this3._resizeImage(galleryImage, startW * e.scale, startH * e.scale, focusPoint, pinchStartX, pinchStartY, pinchOffset);
 	                        };
 	                        mc.on("pinchin", pinchFn);
 	                        mc.on("pinchout", pinchFn);
@@ -334,7 +333,8 @@
 	                            imageStartY = galleryImage.offsetTop;
 	                        });
 	                        mc.on("pinchmove", function (e) {
-	                            _this3._moveImage(galleryImage, imageStartX - (startX - e.pointers[0].clientX), imageStartY - (startY - e.pointers[0].clientY));
+	                            pinchOffset = { x: e.pointers[0].clientX - startX, y: e.pointers[0].clientY - startY };
+	                            // this._moveImage(galleryImage, imageStartX - (startX - e.pointers[0].clientX) , imageStartY - (startY - e.pointers[0].clientY));
 	                        });
 	                        mc.on("panmove", function (e) {
 	                            _this3._moveImage(galleryImage, imageStartX - (startX - e.pointers[0].clientX), imageStartY - (startY - e.pointers[0].clientY));
@@ -385,7 +385,7 @@
 	        }
 	    }, {
 	        key: "_resizeImage",
-	        value: function _resizeImage(image, w, h, focusPoint, startX, startY) {
+	        value: function _resizeImage(image, w, h, focusPoint, startX, startY, offset) {
 	            var x = void 0;
 	            var y = void 0;
 	
@@ -413,16 +413,19 @@
 	            } else {
 	                scale = image.offsetWidth / this.galleryContentContainer.offsetWidth - 1;
 	            }
-	            console.log(focusPoint, "Focus Point");
+	
+	            //TODO: Redo focus point calculations to be more accurate
 	            //Recenter image with new dimensions against focus point based on zoom level
 	            var destination = { x: startX - focusPoint.x * 2, y: startY - focusPoint.y * 2 };
-	            console.log(destination, "Destination");
+	
 	            x = (startX + destination.x) * scale;
 	            y = (startY + destination.y) * scale;
+	            x += offset.x;
+	            y += offset.y;
 	
 	            //Boundry Enforcement
 	            if (h < this.galleryContentContainer.offsetHeight) {
-	                y = (this.galleryContentContainer.offsetHeight - image.offsetHeight) / 2;
+	                y = (this.galleryContentContainer.offsetHeight - h) / 2;
 	            } else if (h > this.galleryContentContainer.offsetHeight && y > 0) {
 	                y = 0;
 	            } else if (h > this.galleryContentContainer.offsetHeight && y < 0 - (h - this.galleryContentContainer.offsetHeight)) {
@@ -430,7 +433,7 @@
 	            }
 	
 	            if (w < this.galleryContentContainer.offsetWidth) {
-	                x = (this.galleryContentContainer.offsetWidth - image.offsetWidth) / 2;
+	                x = (this.galleryContentContainer.offsetWidth - w) / 2;
 	            } else if (w > this.galleryContentContainer.offsetWidth && x > 0) {
 	                x = 0;
 	            } else if (w > this.galleryContentContainer.offsetWidth && x < 0 - (w - this.galleryContentContainer.offsetWidth)) {
@@ -438,10 +441,10 @@
 	            }
 	
 	            image.style.display = "none";
-	            image.style.top = y + "px";
-	            image.style.left = x + "px";
-	            image.style.width = w + "px";
-	            image.style.height = h + "px";
+	            image.style.top = Math.floor(y) + "px";
+	            image.style.left = Math.floor(x) + "px";
+	            image.style.width = Math.floor(w) + "px";
+	            image.style.height = Math.floor(h) + "px";
 	            image.style.display = "block";
 	        }
 	    }, {
@@ -456,6 +459,13 @@
 	            mc.on('swiperight', function (e) {
 	                // this.previous();
 	            });
+	        }
+	    }, {
+	        key: "_setAllInitialImageSize",
+	        value: function _setAllInitialImageSize() {
+	            for (var i in this.images) {
+	                this._setInitialImageSize(this.images[i]);
+	            }
 	        }
 	    }, {
 	        key: "_setInitialImageSize",
@@ -3188,7 +3198,7 @@
 	
 	
 	// module
-	exports.push([module.id, ".gallery {\n  height: 250px;\n  background-color: black;\n  position: relative;\n  overflow: hidden;\n}\n.gallery.fullscreen {\n  position: fixed;\n  z-index: 100;\n  top: 0px;\n  left: 0px;\n  right: 0px;\n  bottom: 0px;\n  height: auto;\n}\n.gallery .forward-nav-icon,\n.gallery .back-nav-icon {\n  position: absolute;\n  top: 0px;\n  bottom: 22px;\n  margin: auto;\n  width: 30px;\n  height: 30px;\n  opacity: .5;\n  z-index: 3;\n}\n.gallery .forward-nav-icon:hover,\n.gallery .back-nav-icon:hover {\n  opacity: .75;\n}\n.gallery .forward-nav-icon {\n  right: 15px;\n}\n.gallery .back-nav-icon {\n  left: 15px;\n}\n.gallery .status-bar {\n  position: absolute;\n  bottom: 0px;\n  left: 0px;\n  right: 0px;\n  height: 22px;\n  text-align: center;\n  /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#45484d+0,000000+100;Black+3D+%231 */\n  background: #45484d;\n  /* Old browsers */\n  background: -moz-linear-gradient(top, #45484d 0%, #000000 100%);\n  /* FF3.6-15 */\n  background: -webkit-linear-gradient(top, #45484d 0%, #000000 100%);\n  /* Chrome10-25,Safari5.1-6 */\n  background: linear-gradient(to bottom, #45484d 0%, #000000 100%);\n  /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */\n  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#45484d', endColorstr='#000000', GradientType=0);\n  /* IE6-9 */\n  -webkit-box-shadow: 0px 0px 14px 0px rgba(0, 0, 0, 0.75);\n  -moz-box-shadow: 0px 0px 14px 0px rgba(0, 0, 0, 0.75);\n  box-shadow: 0px 0px 14px 0px rgba(0, 0, 0, 0.75);\n  z-index: 2;\n  color: white;\n  padding: 5px;\n  font-size: 12px;\n  box-sizing: border-box;\n}\n.gallery .status-bar .fullscreen-icon {\n  position: absolute;\n  right: 5px;\n  top: 5px;\n  height: 12px;\n}\n.gallery .status-bar .navigation-status {\n  position: absolute;\n  left: 5px;\n  top: 5px;\n}\n.gallery .gallery-content {\n  position: absolute;\n  top: 0px;\n  left: 0px;\n  bottom: 22px;\n  width: 100%;\n  overflow: hidden;\n  transition: left .5s;\n  white-space: nowrap;\n  z-index: 1;\n  overflow: visible;\n}\n.gallery .gallery-content > * {\n  width: 100%;\n  height: 100%;\n  display: inline-block;\n  background-size: contain;\n  background-repeat: no-repeat;\n  background-position: center center;\n  vertical-align: top;\n  position: relative;\n  overflow: hidden;\n}\n.gallery .gallery-content > * iframe {\n  width: 100%;\n  height: 100%;\n}\n.gallery .gallery-content > * img {\n  position: absolute;\n  top: 0px;\n  left: 0px;\n}\n", ""]);
+	exports.push([module.id, ".gallery {\n  height: 250px;\n  background-color: black;\n  position: relative;\n  overflow: hidden;\n}\n.gallery.fullscreen {\n  position: fixed;\n  z-index: 100;\n  top: 0px;\n  left: 0px;\n  right: 0px;\n  bottom: 0px;\n  height: auto;\n}\n.gallery .forward-nav-icon,\n.gallery .back-nav-icon {\n  position: absolute;\n  top: 0px;\n  bottom: 22px;\n  margin: auto;\n  width: 30px;\n  height: 30px;\n  opacity: .5;\n  z-index: 3;\n}\n.gallery .forward-nav-icon:hover,\n.gallery .back-nav-icon:hover {\n  opacity: .75;\n}\n.gallery .forward-nav-icon {\n  right: 15px;\n}\n.gallery .back-nav-icon {\n  left: 15px;\n}\n.gallery .status-bar {\n  position: absolute;\n  bottom: 0px;\n  left: 0px;\n  right: 0px;\n  height: 22px;\n  text-align: center;\n  /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#45484d+0,000000+100;Black+3D+%231 */\n  background: #45484d;\n  /* Old browsers */\n  background: -moz-linear-gradient(top, #45484d 0%, #000000 100%);\n  /* FF3.6-15 */\n  background: -webkit-linear-gradient(top, #45484d 0%, #000000 100%);\n  /* Chrome10-25,Safari5.1-6 */\n  background: linear-gradient(to bottom, #45484d 0%, #000000 100%);\n  /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */\n  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#45484d', endColorstr='#000000', GradientType=0);\n  /* IE6-9 */\n  -webkit-box-shadow: 0px 0px 14px 0px rgba(0, 0, 0, 0.75);\n  -moz-box-shadow: 0px 0px 14px 0px rgba(0, 0, 0, 0.75);\n  box-shadow: 0px 0px 14px 0px rgba(0, 0, 0, 0.75);\n  z-index: 2;\n  color: white;\n  padding: 5px;\n  font-size: 12px;\n  box-sizing: border-box;\n}\n.gallery .status-bar .fullscreen-icon {\n  position: absolute;\n  right: 5px;\n  top: 5px;\n  height: 12px;\n}\n.gallery .status-bar .navigation-status {\n  position: absolute;\n  left: 5px;\n  top: 5px;\n}\n.gallery .gallery-content {\n  position: absolute;\n  top: 0px;\n  left: 0px;\n  bottom: 22px;\n  width: 100%;\n  overflow: hidden;\n  transition: left .5s;\n  white-space: nowrap;\n  z-index: 1;\n  overflow: visible;\n}\n.gallery .gallery-content > * {\n  width: 100%;\n  height: 100%;\n  display: inline-block;\n  background-size: contain;\n  background-repeat: no-repeat;\n  background-position: center center;\n  vertical-align: top;\n  position: relative;\n  overflow: hidden;\n}\n.gallery .gallery-content > * iframe {\n  width: 100%;\n  height: 100%;\n}\n.gallery .gallery-content > * img {\n  position: absolute;\n  top: 0px;\n  left: 0px;\n  transform: translate3d(0, 0, 0);\n}\n", ""]);
 	
 	// exports
 
