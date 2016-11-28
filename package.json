@@ -1,5 +1,5 @@
 {
-  "name": "easy-gallery",
+  "name": "galleryjs",
   "version": "1.0.0",
   "description": "Create Gallery widgets in JavaScript that can easily display Images & Video in a variety of layouts.",
   "main": "exports.js",
@@ -39,6 +39,9 @@
     "touchfriendly",
     "responsive",
     "popup",
-    "dialog"
+    "dialog",
+    "image",
+    "swipe",
+    "zoom"
   ]
 }
