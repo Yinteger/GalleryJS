@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>EasyGalleryDemo</title>
+</head>
+<body>
+    <div id="gallery-container"></div>
+    <script src="./dist/gallery.js"></script>
+    <script>
+        window.onload = function () {
+            var items = [
+                {"type": "image", "url": "demo/assets/1080p.jpg", "title": "This is a test title"},
+                {"type": "image", "url": "demo/assets/phone.jpg"},
+                {"type": "youtube", "video_id": "_8puyxscRBs", "player_vars":{"controls": 0}},
+                {"type": "image", "url": "demo/assets/banner.png"},
+                {"type": "image", "url": "demo/assets/icon.png"}
+            ];
+
+            document.getElementById('gallery-container').appendChild(new GalleryJS(items).element);
+        };
+    </script>
+</body>
+</html>
