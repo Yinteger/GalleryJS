@@ -43,5 +43,8 @@
     "image",
     "swipe",
     "zoom"
-  ]
+  ],
+  "dependencies": {
+    "hammerjs": "^2.0.8"
+  }
 }
