@@ -2,7 +2,7 @@
 GalleryJS is a simple and easy to use Gallery Widget for JavaScript.  It's responsive and works great on Desktop and Mobile alike, with extremely intuitive touch control support.  It can be used with images of any size as well as YouTube videos.  GalleryJS has no dependencies and can be used standalone.
 
 # How to use
-To use GalleryJS, download the js file <a target="_blank" href="https://github.com/YuniYasha/GalleryJS/blob/master/dist/gallery.js">Here</a> and import it on your page:
+To use GalleryJS, download the js file <a target="_blank" href="https://raw.githubusercontent.com/YuniYasha/GalleryJS/master/dist/gallery.js">Here</a> and import it on your page:
 ```html
 <script src="../dist/easy-gallery.js"></script>
 ```
