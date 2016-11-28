@@ -1,7 +1,7 @@
 {
   "name": "galleryjs",
   "version": "1.0.2",
-  "description": "Create Gallery widgets in JavaScript that can easily display Images & Video in a variety of layouts.",
+  "description": "GalleryJS is a simple and easy to use Gallery Widget for JavaScript. It's responsive and works great on Desktop and Mobile alike, with extremely intuitive touch control support. It can be used with images of any size as well as YouTube videos.",
   "main": "exports.js",
   "scripts": {
     "compile": "node_modules/.bin/webpack --watch",
