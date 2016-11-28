@@ -11,7 +11,7 @@ export default class YouTubeItem extends GalleryItem {
         this.element.setAttribute('id', "player");
         this.element.setAttribute('type', 'text/html');
         this.element.setAttribute('frameborder', '0');
-        var url = "http://www.youtube.com/embed/" + video_id + "?enablejsapi=1";
+        var url = "https://www.youtube.com/embed/" + video_id + "?enablejsapi=1";
         for (var i in player_vars) {
             url += "&" + i + "=" + player_vars[i];
         }
