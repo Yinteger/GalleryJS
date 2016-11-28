@@ -1,1 +1,1 @@
-module.exports = require("./src/EasyGallery");
+module.exports = require("./src/Gallery.js");

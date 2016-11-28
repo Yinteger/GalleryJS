@@ -7,7 +7,7 @@ import ForwardNavIcon from "./assets/forward-nav.png";
 import ItemBuilder from "./items/ItemBuilder.js";
 import ItemFactory from "./items/ItemFactory.js";
 
-export default class Gallery {
+export default class GalleryJS {
     constructor (itemStubs) {
         this._navigationStatus = null;
         this._gallery = null;
@@ -89,13 +89,13 @@ export default class Gallery {
                 panRightEnabled = false;
             }
 
-            console.log(this._items[this._index].element.offsetLeft + this._items[this._index].element.offsetWidth, this._items[this._index].element.parentNode.offsetWidth);
+            // console.log(this._items[this._index].element.offsetLeft + this._items[this._index].element.offsetWidth, this._items[this._index].element.parentNode.offsetWidth);
             if (this._items[this._index].element.offsetLeft + this._items[this._index].element.offsetWidth <= this._items[this._index].element.parentNode.offsetWidth)  {
                 panLeftEnabled = true;
             } else {
                 panLeftEnabled = false;
             }
-            console.log("Left", panLeftEnabled, "Right", panRightEnabled);
+            // console.log("Left", panLeftEnabled, "Right", panRightEnabled);
         });
         mc.on('panleft', (e) => {
             if (panLeftEnabled || panRightEnabled) {
@@ -103,7 +103,7 @@ export default class Gallery {
             }
 
             if (panRightEnabled && !panLeftEnabled && galleryContentContainer.offsetLeft <= containerStartX) {
-                console.log("Disabled Pan Right");
+                // console.log("Disabled Pan Right");
                 galleryContentContainer.style.left = containerStartX + "px";
                 panRightEnabled = false;
             }
@@ -115,7 +115,7 @@ export default class Gallery {
             }
 
             if (panLeftEnabled && !panRightEnabled && galleryContentContainer.offsetLeft >= containerStartX) {
-                console.log("Disabled Pan Left")
+                // console.log("Disabled Pan Left")
                 galleryContentContainer.style.left = containerStartX + "px";
                 panLeftEnabled = false;
             }
@@ -126,7 +126,7 @@ export default class Gallery {
             galleryContentContainer.classList.remove('no-transition');
             var index = Math.round((galleryContentContainer.offsetLeft * -1) / galleryContentContainer.offsetWidth);
             // console.log((galleryContentContainer.offsetLeft * -1) / galleryContentContainer.offsetWidth);
-            console.log(index);
+            // console.log(index);
             if (index < 0) {
                 index = 0;
             } else if (index > this._items.length - 1) {
@@ -260,5 +260,5 @@ export default class Gallery {
     }
 }
 
-window.Gallery = Gallery;
-module.exports = Gallery;
+window.GalleryJS = GalleryJS;
+module.exports = GalleryJS;
