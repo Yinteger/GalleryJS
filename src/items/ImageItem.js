@@ -9,7 +9,14 @@ export default class ImageItem extends GalleryItem {
 
         //Build Image
         this._element = document.createElement('img');
+        this._element.addEventListener('dragstart', (e) => {
+            //Prevent image dragging.
+            e.preventDefault();
+            return false;
+        });
+        this._element.style.visibility = "hidden";
         this._element.onload = (e) => {
+            this.setReady()
             this.reset();
         };
         this._element.src = this._url;

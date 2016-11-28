@@ -6,6 +6,7 @@ export default class GalleryItem {
         this._type = type;
         this._title = title;
         this._element = null;
+        this._isReady = false;
     }
 
     get title () {
@@ -118,27 +119,47 @@ export default class GalleryItem {
     }
 
     reset () {
-        //Remove all dimensions styling to insure a fresh slate
-        this.element.style.removeProperty("height");
-        this.element.style.removeProperty("width");
+        if (this.isReady()) {
+            //Remove all dimensions styling to insure a fresh slate
+            this.element.style.removeProperty("height");
+            this.element.style.removeProperty("width");
+            this.element.style.visibility = "hidden";
 
-        //Compare Aspect Ratios and set the size of the element
-        let displayAR = this.element.parentNode.offsetWidth / this.element.parentNode.offsetHeight;
-        let imageAR = this.element.offsetWidth / this.element.offsetHeight;
+            //Compare Aspect Ratios and set the size of the element
+            let displayAR = this.element.parentNode.offsetWidth / this.element.parentNode.offsetHeight;
+            let imageAR = this.element.offsetWidth / this.element.offsetHeight;
 
-        if (displayAR > imageAR) {
-            this.element.style.top = "0px";
-            this.element.style.height = this.element.parentNode.offsetHeight + "px";
-            this.element.style.left = ((this.element.parentNode.offsetWidth - this.element.offsetWidth) / 2) + "px";
-        } else if (displayAR < imageAR) {
-            this.element.style.left = "0px";
-            this.element.style.width = this.element.parentNode.offsetWidth + "px";
-            this.element.style.top = ((this.element.parentNode.offsetHeight - this.element.offsetHeight) /2) + "px";
-        } else {
-            this.element.style.top = "0px";
-            this.element.style.left = "0px";
-            this.element.style.height = this.element.parentNode.offsetHeight + "px";
-            this.element.style.width = this.element.parentNode.offsetWidth + "px";
+            if (displayAR > imageAR) {
+                this.element.style.top = "0px";
+                this.element.style.height = this.element.parentNode.offsetHeight + "px";
+                this.element.style.left = ((this.element.parentNode.offsetWidth - this.element.offsetWidth) / 2) + "px";
+            } else if (displayAR < imageAR) {
+                this.element.style.left = "0px";
+                this.element.style.width = this.element.parentNode.offsetWidth + "px";
+                this.element.style.top = ((this.element.parentNode.offsetHeight - this.element.offsetHeight) /2) + "px";
+            } else {
+                this.element.style.top = "0px";
+                this.element.style.left = "0px";
+                this.element.style.height = this.element.parentNode.offsetHeight + "px";
+                this.element.style.width = this.element.parentNode.offsetWidth + "px";
+            }
+
+            this.element.style.visibility = "visible";
+        }
+    }
+
+    onceReady (cb) {
+        this.readyCB = cb;
+    }
+
+    isReady () {
+        return this._isReady;
+    }
+
+    setReady () {
+        this._isReady = true;
+        if (this.readyCB) {
+            this.readyCB();
         }
     }
 

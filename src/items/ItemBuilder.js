@@ -1,12 +1,32 @@
+import Spinner from "../assets/spinner.gif";
+
 class ItemBuilder {
     build (item) {
         let itemContainer = document.createElement('div');
-        itemContainer.appendChild(item.element);
+
+        // let overlay = document.createElement('div');
+        // overlay.className = "event-overlay";
+        // itemContainer.appendChild(overlay);
+
+        if (!item.isReady()) {
+            let spinner = document.createElement('img');
+            spinner.className = "spinner";
+            spinner.src = Spinner;
+            itemContainer.appendChild(spinner);
+
+            item.onceReady(() => {
+               itemContainer.removeChild(spinner);
+               itemContainer.appendChild(item.element);
+            });
+        } else {
+            itemContainer.appendChild(item.element);
+        }
+
         this._attachEvents(itemContainer, item);
         return itemContainer;
     }
 
-    _attachEvents(itemContainer, item) {
+    _attachEvents(itemContainer, item, overlay) {
         var mc = new Hammer.Manager(itemContainer);
         var pinch = new Hammer.Pinch();
         var pan = new Hammer.Pan();

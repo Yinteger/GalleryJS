@@ -16,6 +16,7 @@ export default class YouTubeItem extends GalleryItem {
             url += "&" + i + "=" + player_vars[i];
         }
         this.element.setAttribute('src', url);
+        this.setReady();
     }
 
     reset () {

@@ -1,5 +1,6 @@
 import Hammer from "hammerjs";
 import "./Gallery.less";
+// import "./assets/spinner.css";
 
 import FullScreenIcon from "./assets/fullscreen.png";
 import BackNavIcon from "./assets/back-nav.png";
@@ -79,6 +80,7 @@ export default class GalleryJS {
         var panRightEnabled = false;
 
         mc.on('panstart', (e) => {
+            e.preventDefault();
             startX = e.pointers[0].clientX;
             containerStartX = galleryContentContainer.offsetLeft;
             galleryContentContainer.classList.add('no-transition');
@@ -98,6 +100,7 @@ export default class GalleryJS {
             // console.log("Left", panLeftEnabled, "Right", panRightEnabled);
         });
         mc.on('panleft', (e) => {
+            e.preventDefault();
             if (panLeftEnabled || panRightEnabled) {
                 galleryContentContainer.style.left = containerStartX - (startX - e.pointers[0].clientX) + "px";
             }
@@ -110,6 +113,7 @@ export default class GalleryJS {
         });
 
         mc.on('panright', (e) => {
+            e.preventDefault();
             if (panRightEnabled || panLeftEnabled) {
                 galleryContentContainer.style.left = containerStartX - (startX - e.pointers[0].clientX) + "px";
             }
