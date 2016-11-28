@@ -11,7 +11,7 @@ module.exports = {
     entry: __dirname + "/src/Gallery.js",
     output: {
         path: __dirname + "/dist",
-        filename: "easy-gallery.js"
+        filename: "gallery.js"
     },
     // devtool: "source-map",
     plugins: [
