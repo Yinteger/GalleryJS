@@ -9,7 +9,7 @@
     <script src="../dist/easy-gallery.js"></script>
     <script>
         window.onload = function () {
-            EasyGallery.gallery(document.getElementById('gallery-container'), [{type: "image", "url": "assets/apps.png", title: "This is a test title"}, {"type": "image", "url": "assets/phone.jpg"}, {type: "youtube", video_id: "_8puyxscRBs"}, {type: "image", url: "assets/banner.png"}, {type: "image", url: "assets/icon.png"}]);
+            document.getElementById('gallery-container').appendChild(new Gallery([{type: "image", "url": "assets/1080p.jpg", title: "This is a test title"}, {"type": "image", "url": "assets/phone.jpg"}, {type: "youtube", video_id: "_8puyxscRBs", player_vars:{controls: 0}}, {type: "image", url: "assets/banner.png"}, {type: "image", url: "assets/icon.png"}]).element);
         };
     </script>
 </body>

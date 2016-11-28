@@ -8,19 +8,19 @@ try {
 }
 
 module.exports = {
-    entry: __dirname + "/src/EasyGallery.js",
+    entry: __dirname + "/src/Gallery.js",
     output: {
         path: __dirname + "/dist",
         filename: "easy-gallery.js"
     },
-    devtool: "source-map",
-    // plugins: [
-    //     new webpack.optimize.UglifyJsPlugin({
-    //         compress: {
-    //             warnings: false
-    //         }
-    //     })
-    // ],
+    // devtool: "source-map",
+    plugins: [
+        new webpack.optimize.UglifyJsPlugin({
+            compress: {
+                warnings: false
+            }
+        })
+    ],
     module: {
         loaders: [
             {

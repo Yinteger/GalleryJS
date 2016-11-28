@@ -1,0 +1,111 @@
+.gallery {
+  height: 250px;
+  background-color: black;
+  position: relative;
+  overflow: hidden;
+  &.fullscreen {
+    position: fixed;
+    z-index: 100;
+    top: 0px;
+    left: 0px;
+    right: 0px;
+    bottom: 0px;
+    height: auto;
+  }
+  .forward-nav-icon, .back-nav-icon {
+    position: absolute;
+    top: 0px;
+    bottom: 22px;
+    margin: auto;
+    width: 30px;
+    height: 30px;
+    opacity: 0;
+    z-index: 3;
+    transition: opacity .3s;
+    &:hover {
+      opacity: .75 !important;
+    }
+  }
+  &:hover {
+    .forward-nav-icon, .back-nav-icon {
+      opacity: .5;
+    }
+  }
+  .forward-nav-icon {
+    right: 15px;
+  }
+  .back-nav-icon {
+    left: 15px;
+  }
+  .status-bar {
+    position: absolute;
+    bottom: 0px;
+    left: 0px;
+    right: 0px;
+    height: 22px;
+    text-align: center;
+    //background-color: rgb(0, 0, 0);
+    /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#45484d+0,000000+100;Black+3D+%231 */
+    background: rgb(69,72,77); /* Old browsers */
+    background: -moz-linear-gradient(top,  rgba(69,72,77,1) 0%, rgba(0,0,0,1) 100%); /* FF3.6-15 */
+    background: -webkit-linear-gradient(top,  rgba(69,72,77,1) 0%,rgba(0,0,0,1) 100%); /* Chrome10-25,Safari5.1-6 */
+    background: linear-gradient(to bottom,  rgba(69,72,77,1) 0%,rgba(0,0,0,1) 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#45484d', endColorstr='#000000',GradientType=0 ); /* IE6-9 */
+    -webkit-box-shadow: 0px 0px 14px 0px rgba(0,0,0,0.75);
+    -moz-box-shadow: 0px 0px 14px 0px rgba(0,0,0,0.75);
+    box-shadow: 0px 0px 14px 0px rgba(0,0,0,0.75);
+    z-index: 2;
+    color: white;
+    padding: 5px;
+    font-size: 12px;
+    box-sizing: border-box;
+    .fullscreen-icon {
+      position: absolute;
+      right: 5px;
+      top: 5px;
+      height: 12px;
+    }
+    .navigation-status {
+      position: absolute;
+      left: 5px;
+      top: 5px;
+    }
+  }
+  .gallery-content {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    //right: 0px;
+    bottom: 22px;
+    width: 100%;
+    overflow: hidden;
+    white-space: nowrap;
+    z-index: 1;
+    overflow: visible;
+    transition: left .5s;
+    &.no-transition {
+      transition: none !important;
+    }
+    > * {
+      width: 100%;
+      height: 100%;
+      display: inline-block;
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center center;
+      vertical-align:top;
+      position: relative;
+      overflow: hidden;
+      iframe {
+        width: 100%;
+        height: 100%;
+      }
+      img {
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        transform: translate3d(0,0,0);
+      }
+    }
+  }
+}
