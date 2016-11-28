@@ -1,6 +1,6 @@
 {
   "name": "galleryjs",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Create Gallery widgets in JavaScript that can easily display Images & Video in a variety of layouts.",
   "main": "exports.js",
   "scripts": {
