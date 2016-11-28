@@ -25,7 +25,7 @@ npm install galleryjs --save
 ```
 If you decide to compile galleryjs into your project, you will need loaders for es6 (Ex: Babel), less, and images, inside your compiler options.
 
-Currently, GalleryJS supports Images and YouTube videos, and you can tell GalleryJS which to render using basic JavaScript objects with a type attribute.
+Currently, GalleryJS supports Images and YouTube videos, and you can tell GalleryJS which to render by passing an array of basic JavaScript objects into the constructor.  Here's some examples:
 
 ```json
 {"type": "image", "title": "Test Title", "url": "http://pathtoimage"}
