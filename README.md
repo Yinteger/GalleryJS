@@ -4,7 +4,7 @@ GalleryJS is a simple and easy to use Gallery Widget for JavaScript.  It's respo
 View a live demo <a target="_blank" href="https://yinkai15.github.io/GalleryJS/">here!</a>
 
 # How to use
-To use GalleryJS, download the js file <a target="_blank" href="https://raw.githubusercontent.com/YuniYasha/GalleryJS/master/dist/gallery.js">here</a> and import it on your page:
+To use GalleryJS, download the js file <a target="_blank" href="https://raw.githubusercontent.com/yinkai15/GalleryJS/master/dist/gallery.js">here</a> and import it on your page:
 ```html
 <script src="yourwebsite.com/gallery.js"></script>
 ```
